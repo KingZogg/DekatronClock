@@ -150,14 +150,14 @@ void updateIndex() {
 			if ((indexState == HIGH) && (Dek3.clockwise == false))
 			{
 				Dek3.clockwise = true;
-				//Serial.println("Clockwise");
+				Serial.println("Clockwise");
 				//Serial.println("index high");
 
 			}
 			else if (((indexState == HIGH)) && (Dek3.clockwise == true))
 			{
 				Dek3.clockwise = false;
-				//Serial.println("Counter Clockwise");
+				Serial.println("Counter Clockwise");
 				//Serial.println("index low");
 
 			}

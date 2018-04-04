@@ -9,30 +9,40 @@ public:
 	int stepDelay;
 	bool clockwise;
 	unsigned long previousMillis;
+	bool atIndex;
 
 public:
-	dekatronStep(byte pin1, byte pin2, byte pin3, bool direction, int sDelay)	//Guide1, Guide2, Index, StepDelay, Direction
+	dekatronStep(byte pin1, byte pin2, byte pin3, bool direction,bool indexHigh,int sDelay)	//Guide1, Guide2, Index, StepDelay, Direction
+	//dekatronStep(byte pin1, byte pin2, byte pin3, bool direction, int sDelay)	//Guide1, Guide2, Index, StepDelay, Direction
 	{
 		Guide1 = pin1;
 		Guide2 = pin2;
 		Index = pin3;
 		stepDelay = sDelay;
 		clockwise = direction;
+		atIndex = indexHigh;
 
 		pinMode(Guide1, OUTPUT);
 		pinMode(Guide2, OUTPUT);
 		pinMode(Index, INPUT);
 	}
 
-	void updateStep(bool clockwise,int stepDelay)
+	bool updateStep(bool clockwise,int stepDelay,bool indexHigh)
 	{
 		//Delay needed if there is not enough delay in the loop when calling.
 		// will need adjusting depending on processor speed. This is runing at 16mHz.
 
 		delayMicroseconds(40);
 
-		//unsigned long currentMillis = millis();
+		atIndex = digitalRead(Index);
+		
+		if (atIndex) 
+		{
+			digitalWrite(LED_BUILTIN, HIGH);
+		}
+		else digitalWrite(LED_BUILTIN, LOW);
 
+				
 		if ((millis() - previousMillis >= stepDelay))
 		{
 			switch (previousGuideState) {
@@ -73,7 +83,7 @@ public:
 				previousMillis = millis();
 				break;
 			} // end of switch case
-
+			return atIndex;
 		}
 
 
@@ -81,10 +91,25 @@ public:
 
 };
 
-dekatronStep Dek1(52, 50, 48, true, 0); //setup physical pins here. In this case 52 and 50 are G1 and G2. The index is 48.
-dekatronStep Dek2(44, 42, 40, true, 0);
-dekatronStep Dek3(36, 34, 32, true, 0);
-dekatronStep Dek4(28, 26, 24, true, 0);
+//setup physical pins here. In this case 22 and 23 are G1 and G2. The index is 24.
+dekatronStep Dek1(22, 23, 24, true, false, 0); 
+dekatronStep Dek2(25, 26, 27, true, false, 0); //error not moving.
+dekatronStep Dek3(28, 29, 30, true,false, 0);
+dekatronStep Dek4(32, 31, 33, true,false, 0); //error
+dekatronStep Dek5(34, 35, 36, true, false, 0); 
+dekatronStep Dek6(37, 38, 39, true, false, 0); //error
+
+dekatronStep Dek7(40, 41, 42, true, false, 0); //error
+dekatronStep Dek8(43, 44, 45, true, false, 0); //error
+
+//dekatronStep Dek9(PIN_A14, PIN_A15, PIN_A13, true, false, 0); //error
+
+dekatronStep Dek10(A14, A15, A13, true, false, 0); //error
+
+//dekatronStep Dek11(PIN_A14, PIN_A15, PIN_A13, true, false, 0); //error
+//dekatronStep Dek12(PIN_A14, PIN_A15, PIN_A13, true, false, 0); //error
+//dekatronStep Dek13(PIN_A14, PIN_A15, PIN_A13, true, false, 0); //error
+
 
 
 //index ignore timout settings.
@@ -118,15 +143,22 @@ void setup()
 
 }
 
-// Interrupt is called once a millisecond
+// Interrupt 
 ISR(TIMER1_COMPA_vect)
 {
-	//unsigned long currentMillis = millis();
-
-	Dek1.updateStep(true,0);
-	Dek2.updateStep(true,3);
-	Dek3.updateStep(true,50);
-	Dek4.updateStep(false,20);
+	Dek1.updateStep(true, 500,false);
+	Dek2.updateStep(true, 500,false);
+	Dek3.updateStep(true, 500,false);
+	Dek4.updateStep(false, 500,false);
+	Dek5.updateStep(true, 500, false);
+	Dek6.updateStep(true, 500, false);
+	Dek7.updateStep(true, 500, false);
+	Dek8.updateStep(false, 500, false);
+	//Dek9.updateStep(false, 500, false);
+	//Dek10.updateStep(true, 500, false);
+	//Dek11.updateStep(true, 500, false);
+	//Dek12.updateStep(true, 500, false);
+	//Dek13.updateStep(false, 500, false);
 
 	updateIndex();
 
@@ -136,7 +168,7 @@ ISR(TIMER1_COMPA_vect)
 void updateIndex() {
 
 	// see if Index is High or Low
-	byte indexState = digitalRead(Dek4.Index);
+	byte indexState = digitalRead(Dek1.Index);
 
 	// has index state changed since last time?
 	if (indexState != oldIndexState)
@@ -147,16 +179,16 @@ void updateIndex() {
 			indexHighTime = millis();  // when index was high
 			oldIndexState = indexState;  // remember for next time 
 
-			if ((indexState == HIGH) && (Dek3.clockwise == false))
+			if ((indexState == HIGH) && (Dek1.clockwise == false))
 			{
-				Dek3.clockwise = true;
+				Dek1.clockwise = true;
 				Serial.println("Clockwise");
 				//Serial.println("index high");
 
 			}
 			else if (((indexState == HIGH)) && (Dek3.clockwise == true))
 			{
-				Dek3.clockwise = false;
+				Dek1.clockwise = false;
 				Serial.println("Counter Clockwise");
 				//Serial.println("index low");
 

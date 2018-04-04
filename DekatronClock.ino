@@ -9,10 +9,10 @@ public:
 	int stepDelay;
 	bool clockwise;
 	unsigned long previousMillis;
-	bool atIndex;
+	
 
 public:
-	dekatronStep(byte pin1, byte pin2, byte pin3, bool direction,bool indexHigh,int sDelay)	//Guide1, Guide2, Index, StepDelay, Direction
+	dekatronStep(byte pin1, byte pin2, byte pin3, bool direction,int sDelay)	//Guide1, Guide2, Index, StepDelay, Direction
 	//dekatronStep(byte pin1, byte pin2, byte pin3, bool direction, int sDelay)	//Guide1, Guide2, Index, StepDelay, Direction
 	{
 		Guide1 = pin1;
@@ -20,20 +20,19 @@ public:
 		Index = pin3;
 		stepDelay = sDelay;
 		clockwise = direction;
-		atIndex = indexHigh;
-
+		
 		pinMode(Guide1, OUTPUT);
 		pinMode(Guide2, OUTPUT);
 		pinMode(Index, INPUT);
 	}
 
-	bool updateStep(bool clockwise,int stepDelay,bool indexHigh)
+	void updateStep(bool clockwise,int stepDelay)
 	{
 		//Delay needed if there is not enough delay in the loop when calling.
 		// will need adjusting depending on processor speed. This is runing at 16mHz.
 
-		delayMicroseconds(40);
-
+		//delayMicroseconds(40);
+		int atIndex=0;
 		atIndex = digitalRead(Index);
 		
 		if (atIndex) 
@@ -83,7 +82,7 @@ public:
 				previousMillis = millis();
 				break;
 			} // end of switch case
-			return atIndex;
+			
 		}
 
 
@@ -92,23 +91,19 @@ public:
 };
 
 //setup physical pins here. In this case 22 and 23 are G1 and G2. The index is 24.
-dekatronStep Dek1(22, 23, 24, true, false, 0); 
-dekatronStep Dek2(25, 26, 27, true, false, 0); //error not moving.
-dekatronStep Dek3(28, 29, 30, true,false, 0);
-dekatronStep Dek4(32, 31, 33, true,false, 0); //error
-dekatronStep Dek5(34, 35, 36, true, false, 0); 
-dekatronStep Dek6(37, 38, 39, true, false, 0); //error
-
-dekatronStep Dek7(40, 41, 42, true, false, 0); //error
-dekatronStep Dek8(43, 44, 45, true, false, 0); //error
-
-//dekatronStep Dek9(PIN_A14, PIN_A15, PIN_A13, true, false, 0); //error
-
-dekatronStep Dek10(A14, A15, A13, true, false, 0); //error
-
-//dekatronStep Dek11(PIN_A14, PIN_A15, PIN_A13, true, false, 0); //error
-//dekatronStep Dek12(PIN_A14, PIN_A15, PIN_A13, true, false, 0); //error
-//dekatronStep Dek13(PIN_A14, PIN_A15, PIN_A13, true, false, 0); //error
+dekatronStep Dek1(22, 23, 24, true, 0); 
+dekatronStep Dek2(25, 26, 27, true, 0); //error not moving.
+dekatronStep Dek3(28, 29, 30, true, 0);
+dekatronStep Dek4(31, 32, 33, true, 0); //error not moving.
+dekatronStep Dek5(34, 35, 36, true, 0); 
+dekatronStep Dek6(37, 38, 39, true, 0); //error wobbling
+dekatronStep Dek7(40, 41, 42, true,0);
+dekatronStep Dek8(43, 44, 45, true, 0); //error not moving.
+dekatronStep Dek9(46, 47, 48, true, 0);
+dekatronStep Dek10(0, 1, 2, true,  0); //error not moving
+dekatronStep Dek11(3, 4, 5, true, 0);  //WORKING
+dekatronStep Dek12(6, 7, 8, true, 0);	//WORKING
+dekatronStep Dek13(9, 10, 11, true, 0); //worked then didn't
 
 
 
@@ -146,21 +141,21 @@ void setup()
 // Interrupt 
 ISR(TIMER1_COMPA_vect)
 {
-	Dek1.updateStep(true, 500,false);
-	Dek2.updateStep(true, 500,false);
-	Dek3.updateStep(true, 500,false);
-	Dek4.updateStep(false, 500,false);
-	Dek5.updateStep(true, 500, false);
-	Dek6.updateStep(true, 500, false);
-	Dek7.updateStep(true, 500, false);
-	Dek8.updateStep(false, 500, false);
-	//Dek9.updateStep(false, 500, false);
-	//Dek10.updateStep(true, 500, false);
-	//Dek11.updateStep(true, 500, false);
-	//Dek12.updateStep(true, 500, false);
-	//Dek13.updateStep(false, 500, false);
+	Dek1.updateStep(true, 5);
+	Dek2.updateStep(true, 10);
+	Dek3.updateStep(true, 15);
+	Dek4.updateStep(true, 20);
+	Dek5.updateStep(true, 25);
+	Dek6.updateStep(true, 30);
+	Dek7.updateStep(true, 35);
+	Dek8.updateStep(false, 40);
+	Dek9.updateStep(false, 45);
+	Dek10.updateStep(true, 50);
+	Dek11.updateStep(true, 55);
+	Dek12.updateStep(true, 60);
+	Dek13.updateStep(false, 65);
 
-	updateIndex();
+	//updateIndex();
 
 }
 
@@ -186,7 +181,7 @@ void updateIndex() {
 				//Serial.println("index high");
 
 			}
-			else if (((indexState == HIGH)) && (Dek3.clockwise == true))
+			else if (((indexState == HIGH)) && (Dek1.clockwise == true))
 			{
 				Dek1.clockwise = false;
 				Serial.println("Counter Clockwise");

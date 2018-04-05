@@ -100,10 +100,12 @@ dekatronStep Dek6(37, 38, 39, true, 0); //error wobbling
 dekatronStep Dek7(40, 41, 42, true,0);
 dekatronStep Dek8(43, 44, 45, true, 0); //error not moving.
 dekatronStep Dek9(46, 47, 48, true, 0);
-dekatronStep Dek10(0, 1, 2, true,  0); //error not moving
-dekatronStep Dek11(3, 4, 5, true, 0);  //WORKING
-dekatronStep Dek12(6, 7, 8, true, 0);	//WORKING
-dekatronStep Dek13(9, 10, 11, true, 0); //worked then didn't
+dekatronStep Dek10(0, 1, 2, true,  0);	//error not moving
+
+//guide wiring back the front.
+dekatronStep Dek11(4, 3, 5, true, 0);	//WORKING
+dekatronStep Dek12(7, 6, 8, true, 0);	//WORKING
+dekatronStep Dek13(10, 9, 11, true, 0); //Working but only when 11 and 12 are also plugged in.
 
 
 
@@ -141,21 +143,21 @@ void setup()
 // Interrupt 
 ISR(TIMER1_COMPA_vect)
 {
-	Dek1.updateStep(true, 5);
+	Dek1.updateStep(true, 100);
 	Dek2.updateStep(true, 10);
 	Dek3.updateStep(true, 15);
 	Dek4.updateStep(true, 20);
 	Dek5.updateStep(true, 25);
 	Dek6.updateStep(true, 30);
 	Dek7.updateStep(true, 35);
-	Dek8.updateStep(false, 40);
-	Dek9.updateStep(false, 45);
+	Dek8.updateStep(true, 40);
+	Dek9.updateStep(true, 45);
 	Dek10.updateStep(true, 50);
 	Dek11.updateStep(true, 55);
 	Dek12.updateStep(true, 60);
-	Dek13.updateStep(false, 65);
+	Dek13.updateStep(true, 15);
 
-	//updateIndex();
+	updateIndex();
 
 }
 
@@ -163,7 +165,7 @@ ISR(TIMER1_COMPA_vect)
 void updateIndex() {
 
 	// see if Index is High or Low
-	byte indexState = digitalRead(Dek1.Index);
+	byte indexState = digitalRead(Dek13.Index);
 
 	// has index state changed since last time?
 	if (indexState != oldIndexState)
@@ -174,16 +176,16 @@ void updateIndex() {
 			indexHighTime = millis();  // when index was high
 			oldIndexState = indexState;  // remember for next time 
 
-			if ((indexState == HIGH) && (Dek1.clockwise == false))
+			if ((indexState == HIGH) && (Dek13.clockwise == false))
 			{
-				Dek1.clockwise = true;
+				Dek12.clockwise = true;
 				Serial.println("Clockwise");
 				//Serial.println("index high");
 
 			}
-			else if (((indexState == HIGH)) && (Dek1.clockwise == true))
+			else if (((indexState == HIGH)) && (Dek13.clockwise == true))
 			{
-				Dek1.clockwise = false;
+				Dek12.clockwise = false;
 				Serial.println("Counter Clockwise");
 				//Serial.println("index low");
 
